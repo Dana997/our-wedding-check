@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Our Pig Wedding</title>
+  <link rel="stylesheet" href="./style.css?v=777" />
+  <link rel="icon" href="data:," />
+</head>
+
+<body>
+  <div class="layout">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <!-- Mobile close button -->
+      <button class="sidebar-close" id="btnSidebarClose" type="button" aria-label="Close menu">✕</button>
+
+      <div class="brand">
+        <h1 id="siteTitle">OUR PIG WEDDING</h1>
+        <p class="sub">최종 업체/비용/일정이 Summary에 자동 집계돼요</p>
+      </div>
+
+      <!-- JS will fill buttons here -->
+      <div class="side-menu" id="sideMenu"></div>
+
+      <div style="margin-top:14px; color: var(--muted); font-size:12px; line-height:1.5;">
+        <div>• 데이터는 이 브라우저에 저장돼요.</div>
+        <div>• 다른 PC/폰에서는 내보내기(JSON) → 가져오기.</div>
+      </div>
+    </aside>
+
+    <!-- RIGHT CONTENT -->
+    <main class="container">
+      <!-- Mobile open button -->
+      <button class="hamburger" id="btnSidebarOpen" type="button" aria-label="Open menu">☰</button>
+
+      <!-- ===== SUMMARY VIEW ===== -->
+      <section id="view-summary" class="view active">
+        <div class="dashboard">
+
+          <!-- HERO / DESCRIPTION -->
+          <div class="card dash-hero">
+            <div class="card-head">
+              <h3>OUR PIG WEDDING</h3>
+            </div>
+            <p style="margin:0; color:var(--muted); font-size:13px; line-height:1.6;">
+              각 메뉴에서 후보/비용/날짜를 입력하고, <b>최종</b>을 선택하면 Summary에 자동으로 합산돼요.
+            </p>
+          </div>
+
+          <!-- LIST (Final vendors) -->
+          <div class="card dash-list">
+            <div class="card-head">
+              <h3>LIST</h3>
+              <small>카테고리별 최종 업체</small>
+            </div>
+            <div id="finalList"></div>
+          </div>
+
+          <!-- CALENDAR -->
+          <div class="card dash-cal">
+            <div class="card-head">
+              <h3>CALENDAR</h3>
+              <div class="row center" style="gap:6px;">
+                <button class="btn ghost" id="calPrev" type="button">◀</button>
+                <strong id="calLabel" style="font-size:13px;"></strong>
+                <button class="btn ghost" id="calNext" type="button">▶</button>
+              </div>
+            </div>
+
+            <div class="calendar" id="calendar"></div>
+
+            <div style="margin-top:10px;">
+              <div class="card-head" style="margin-bottom:6px;">
+                <h3 style="font-size:13px;">UPCOMING</h3>
+                <small>다가오는 일정</small>
+              </div>
+              <div id="upcomingList"></div>
+            </div>
+          </div>
+
+          <!-- COST -->
+          <div class="card dash-cost">
+            <div class="card-head">
+              <h3>COST</h3>
+              <small>최종 업체만 합산</small>
+            </div>
+
+            <div class="kpis">
+              <div class="kpi">
+                <div class="label">예산</div>
+                <div class="value" id="kpiBudget">0</div>
+              </div>
+              <div class="kpi">
+                <div class="label">계약금</div>
+                <div class="value" id="kpiDeposit">0</div>
+              </div>
+              <div class="kpi">
+                <div class="label">잔금</div>
+                <div class="value" id="kpiBalance">0</div>
+              </div>
+              <!-- ✅ TOTAL 강조용 클래스 -->
+              <div class="kpi kpi-total">
+                <div class="label">최종합계</div>
+                <div class="value" id="kpiTotal">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- REMARK -->
+          <div class="card dash-memo">
+            <div class="card-head">
+              <h3>REMARK</h3>
+              <small>메모/체크리스트</small>
+            </div>
+
+            <label>메모</label>
+            <textarea id="summaryMemo" placeholder="메모/해야할 일/체크리스트를 적어두세요"></textarea>
+
+            <div class="row" style="margin-top:10px; justify-content:flex-end; gap:8px;">
+              <button class="btn primary" id="btnSaveSummaryMemo" type="button">저장</button>
+              <button class="btn" id="btnExport" type="button">내보내기</button>
+              <label class="btn" style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                가져오기
+                <input id="importFile" type="file" accept="application/json" style="display:none" />
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===== CATEGORY VIEW ===== -->
+      <section id="view-category" class="view">
+        <div class="card">
+          <div class="row between" style="margin-bottom:10px;">
+            <div>
+              <h2 id="catTitle" style="margin:0;">카테고리</h2>
+              <small style="color:var(--muted);">후보를 추가하고, 최종을 선택하면 Summary에 반영돼요.</small>
+            </div>
+            <button class="btn primary" id="btnAddVendor" type="button">후보 추가</button>
+          </div>
+
+          <!-- vendor cards go here -->
+          <div id="vendorList"></div>
+        </div>
+
+        <!-- template for vendor cards (used by app.js) -->
+        <template id="vendorCardTpl">
+          <div class="vendor-card">
+            <div class="vendor-top">
+              <div class="left">
+                <label style="display:flex; align-items:center; gap:8px; margin:0;">
+                  <input class="radioFinal" type="radio" />
+                  <span class="badge"><span class="emoji">✓</span> 최종</span>
+                </label>
+              </div>
+              <div class="row center" style="gap:8px;">
+                <a class="btn ghost linkOpen" href="javascript:void(0)" target="_blank" rel="noreferrer">링크 열기</a>
+                <button class="btn danger btnDel" type="button">삭제</button>
+              </div>
+            </div>
+
+            <div class="grid2">
+              <div>
+                <label>업체 이름</label>
+                <input class="vendorName" type="text" placeholder="예) ○○웨딩홀" />
+              </div>
+              <div>
+                <label>인스타/링크</label>
+                <input class="vendorLink" type="url" placeholder="https://instagram.com/..." />
+              </div>
+            </div>
+
+            <div class="grid2" style="margin-top:10px;">
+              <div>
+                <label>사진(URL)</label>
+                <input class="vendorPhoto" type="url" placeholder="https://...jpg" />
+              </div>
+              <div>
+                <label>메모</label>
+                <input class="vendorMemo" type="text" placeholder="장점/단점, 견적 포인트 등" />
+              </div>
+            </div>
+
+            <div class="grid3" style="margin-top:10px;">
+              <div>
+                <label>날짜</label>
+                <input class="vendorDate" type="date" />
+              </div>
+              <div>
+                <label>일정 제목</label>
+                <input class="vendorDateTitle" type="text" placeholder="예) 상담, 투어, 계약" />
+              </div>
+              <div>
+                <label>합계</label>
+                <div style="border:1px solid var(--line); border-radius:8px; padding:9px 10px; background:#fff;">
+                  <strong class="vendorTotal">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid3" style="margin-top:10px;">
+              <div>
+                <label>예산</label>
+                <input class="vendorBudget" type="text" inputmode="numeric" placeholder="숫자만" />
+              </div>
+              <div>
+                <label>계약금</label>
+                <input class="vendorDeposit" type="text" inputmode="numeric" placeholder="숫자만" />
+              </div>
+              <div>
+                <label>잔금</label>
+                <input class="vendorBalance" type="text" inputmode="numeric" placeholder="숫자만" />
+              </div>
+            </div>
+
+            <div class="preview hidden">
+              <img class="previewImg" alt="preview" />
+            </div>
+          </div>
+        </template>
+      </section>
+    </main>
+
+    <!-- Mobile backdrop -->
+    <div class="backdrop" id="sidebarBackdrop"></div>
+  </div>
+
+  <script src="./app.js?v=777"></script>
+</body>
+</html>
